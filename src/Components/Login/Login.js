@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import React, { useState } from 'react';
-import firebaseConfig from "./Firebase/firebase";
+import firebaseConfig from "../../Firebase/firebase";
 initializeApp(firebaseConfig)
 const Login = () => {
     const [user, setUser] = useState({
@@ -23,21 +23,34 @@ const Login = () => {
                     photo: photoURL
                 }
                 setUser(signedInUser);
-                console.log(displayName, email, photoURL);
             }).catch((error) => {
                 console.log(error.code);
                 console.log(error.message);
             });
     }
+    const handleSignOut = () => {
+        signOut(auth).then(() => {
+            const userSignedOut = {
+                isSignedIn: false,
+                name: '',
+                email: '',
+                photo: ''
+            }
+            setUser(userSignedOut);
+        }).catch((error) => {
+            // An error happened.
+            console.log(error);
+        });
+    }
     return (
         <div>
-            <button onClick={handleSignIn}>Log in with Google</button>
+            {user.isSignedIn ? <button onClick={handleSignOut}>Sign Out</button> : <button onClick={handleSignIn}>Log in with Google</button>}
             {
                 user.isSignedIn &&
                 <div>
                     <p> Welcome, {user.name} </p>
                     <p>email: {user.email}</p>
-                    <img style={{borderRadius:'50%'}} src={user.photo} alt={user.name} />
+                    <img style={{ borderRadius: '50%' }} src={user.photo} alt={user.name} />
                 </div>
             }
         </div>
